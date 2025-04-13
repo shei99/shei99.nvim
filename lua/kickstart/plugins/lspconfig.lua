@@ -183,6 +183,8 @@ return {
       end
       local linters = linters_config()
 
+      local navic = require 'nvim-navic'
+
       -- Ensure the servers and tools above are installed
       --  To check the current status of installed tools and/or manually install
       --  other tools, you can run
@@ -209,7 +211,16 @@ return {
             -- by the server configuration above. Useful when disabling
             -- certain features of an LSP (for example, turning off formatting for ts_ls)
             server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-            require('lspconfig')[server_name].setup(server)
+
+            if server_name == 'yamlls' then
+              require('lspconfig').yamlls.setup {
+                on_attach = function(client, bufnr)
+                  navic.attach(client, bufnr)
+                end,
+              }
+            else
+              require('lspconfig')[server_name].setup(server)
+            end
           end,
         },
       }
